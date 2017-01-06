@@ -20457,29 +20457,18 @@ module.exports = require('./lib/React');
 var React = require('react');
 var ListItem = require('./ListItem.jsx');
 
-var ingredients = [{
-  "id": 1,
-  "text": "ham"
-}, {
-  "id": 2,
-  "text": "cheese"
-}, {
-  "id": 3,
-  "text": "potatoes"
-}];
-
 var List = React.createClass({
   displayName: 'List',
 
   render: function () {
-    var ListItems = ingredients.map(function (item) {
-      return React.createElement(ListItem, { key: item.id, ingredients: item.text });
-    });
+    var createItem = function (text, index) {
+      return React.createElement(ListItem, { key: index + text, text: text });
+    };
 
     return React.createElement(
       'ul',
       null,
-      ListItems
+      this.props.items.map(createItem)
     );
   }
 });
@@ -20488,6 +20477,7 @@ module.exports = List;
 
 },{"./ListItem.jsx":179,"react":177}],179:[function(require,module,exports){
 var React = require('react');
+
 var ListItem = React.createClass({
   displayName: 'ListItem',
 
@@ -20498,7 +20488,7 @@ var ListItem = React.createClass({
       React.createElement(
         'h4',
         null,
-        this.props.ingredients
+        this.props.text
       )
     );
   }
@@ -20508,9 +20498,94 @@ module.exports = ListItem;
 
 },{"react":177}],180:[function(require,module,exports){
 var React = require('react');
+var List = require('./List.jsx');
+
+var ListManager = React.createClass({
+  displayName: 'ListManager',
+
+
+  getInitialState: function () {
+    return { items: [], newItemText: '' };
+  },
+
+  onChange: function (e) {
+    this.setState({ newItemText: e.target.value });
+  },
+
+  handleSubmit: function (e) {
+    e.preventDefault();
+
+    var currentItems = this.state.items;
+
+    currentItems.push(this.state.newItemText);
+
+    this.setState({ items: currentItems, newItemText: '' });
+  },
+
+  render: function () {
+
+    var divStyle = {
+      marginTop: 10
+    };
+
+    var headingStyle = {};
+
+    if (this.props.headingColor) {
+      headingStyle.background = this.props.headingColor;
+    }
+
+    return React.createElement(
+      'div',
+      { style: divStyle, className: 'col-md-4' },
+      React.createElement(
+        'div',
+        { className: 'panel panel-primary' },
+        React.createElement(
+          'div',
+          { style: headingStyle, className: 'panel-heading' },
+          React.createElement(
+            'h3',
+            null,
+            this.props.title
+          )
+        ),
+        React.createElement(
+          'div',
+          { className: 'row panel-body' },
+          React.createElement(
+            'form',
+            { onSubmit: this.handleSubmit },
+            React.createElement(
+              'div',
+              { className: 'col-sm-9' },
+              React.createElement('input', { className: 'form-control', type: 'text', onChange: this.onChange, value: this.state.newItemText })
+            ),
+            React.createElement(
+              'div',
+              { className: 'col-sm-2' },
+              React.createElement(
+                'button',
+                { className: 'btn btn-primary', type: 'submit' },
+                'Add'
+              )
+            )
+          )
+        ),
+        React.createElement(List, { items: this.state.items })
+      )
+    );
+  }
+});
+
+module.exports = ListManager;
+
+},{"./List.jsx":178,"react":177}],181:[function(require,module,exports){
+var React = require('react');
 var ReactDOM = require('react-dom');
-var List = require('./components/List.jsx');
+var ListManager = require('./components/ListManager.jsx');
 
-ReactDOM.render(React.createElement(List, null), document.getElementById('ingredients'));
+ReactDOM.render(React.createElement(ListManager, { title: 'Ingredients', headingColor: '#3498db' }), document.getElementById('ingredients'));
+ReactDOM.render(React.createElement(ListManager, { title: 'Groceries', headingColor: '#34495e' }), document.getElementById('groceries'));
+ReactDOM.render(React.createElement(ListManager, { title: 'ToDo', headingColor: '#e67e22' }), document.getElementById('todo'));
 
-},{"./components/List.jsx":178,"react":177,"react-dom":26}]},{},[180]);
+},{"./components/ListManager.jsx":180,"react":177,"react-dom":26}]},{},[181]);
